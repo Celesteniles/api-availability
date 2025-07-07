@@ -15,23 +15,14 @@ return new class extends Migration {
             $table->foreignId('api_endpoint_id')->constrained()->cascadeOnDelete();
             $table->enum('status', ['up', 'down']);
             $table->string('response_code');
+            $table->float('response_time')->nullable()->comment('Temps de réponse en millisecondes');
+            $table->float('check_duration')->nullable()->comment('Durée totale du check');
+            $table->float('dns_resolution_time')->nullable()->comment('Temps de résolution DNS');
+            $table->text('error_message')->nullable();
+            $table->json('response_headers')->nullable();
+            $table->text('response_body')->nullable();
+            $table->timestamp('ssl_expiry_date')->nullable();
             $table->timestamp('checked_at');
-
-            // Métriques de performance
-            $table->float('response_time')->nullable()->after('response_code')->comment('Temps de réponse en millisecondes');
-            $table->float('check_duration')->nullable()->after('response_time')->comment('Durée totale du check');
-            $table->float('dns_resolution_time')->nullable()->after('check_duration')->comment('Temps de résolution DNS');
-
-            // Détails des erreurs
-            $table->text('error_message')->nullable()->after('dns_resolution_time');
-
-            // Réponse HTTP détaillée
-            $table->json('response_headers')->nullable()->after('error_message');
-            $table->text('response_body')->nullable()->after('response_headers');
-
-            // SSL/TLS
-            $table->timestamp('ssl_expiry_date')->nullable()->after('response_body');
-
             $table->timestamps();
         });
     }
