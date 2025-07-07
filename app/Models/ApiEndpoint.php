@@ -22,11 +22,11 @@ class ApiEndpoint extends Model
         'expected_content',
         'last_checked_at',
         'consecutive_failures',
-        // 'environment',
-        // 'priority',
+        'environment',
+        'priority',
         'team_responsible',
-        // 'maintenance_window_start',
-        // 'maintenance_window_end'
+        'maintenance_window_start',
+        'maintenance_window_end'
     ];
 
     protected $casts = [
@@ -229,6 +229,32 @@ class ApiEndpoint extends Model
 
         $now = now();
         return $now->between($this->maintenance_window_start, $this->maintenance_window_end);
+    }
+
+    /**
+     * Compte les échecs consécutifs récents en analysant les logs
+     */
+    public function getConsecutiveFailures(): int
+    {
+        $consecutiveFailures = 0;
+
+        // Récupère les 20 derniers logs ordonnés par date décroissante
+        $recentLogs = $this
+            ->logs()
+            ->orderBy('checked_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        // Compte les échecs consécutifs depuis le début
+        foreach ($recentLogs as $log) {
+            if ($log->status === 'down') {
+                $consecutiveFailures++;
+            } else {
+                break;  // On s'arrête au premier statut "up"
+            }
+        }
+
+        return $consecutiveFailures;
     }
 
     /**
