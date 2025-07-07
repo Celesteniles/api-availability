@@ -1,0 +1,10 @@
+[Unit]
+Description=API Availability Task Scheduling
+
+[Service]
+ExecStart=/usr/bin/php artisan schedule:work
+WorkingDirectory=/var/www/apps/.prod/api-availability
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
